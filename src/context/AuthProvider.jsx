@@ -1,67 +1,69 @@
-// src/context/AuthProvider.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
-import {
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    signOut,
-    signInWithPopup,
-    GoogleAuthProvider,
-    onAuthStateChanged,
-} from "firebase/auth";
 import { auth, googleProvider } from "../services/firebase.config";
+import {
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signInWithPopup,
+    signOut,
+    onAuthStateChanged,
+    updateProfile
+} from "firebase/auth";
 
-// Create Context
 const AuthContext = createContext();
 
-// Provider Component
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [role, setRole] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Track Auth State
+    const registerWithEmail = async (name, email, password, profileImage, userRole) => {
+        const res = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(res.user, { displayName: name, photoURL: profileImage });
+        setUser(res.user);
+        setRole(userRole);
+        localStorage.setItem("userRole", userRole);
+    };
+
+    const loginWithEmail = async (email, password) => {
+        const res = await signInWithEmailAndPassword(auth, email, password);
+        setUser(res.user);
+        const savedRole = localStorage.getItem("userRole");
+        setRole(savedRole);
+    };
+
+    const loginWithGoogle = async (selectedRole) => {
+        const res = await signInWithPopup(auth, googleProvider);
+        setUser(res.user);
+        setRole(selectedRole);
+        localStorage.setItem("userRole", selectedRole);
+    };
+
+    const logout = () => {
+        signOut(auth);
+        setUser(null);
+        setRole(null);
+        localStorage.removeItem("userRole");
+    };
+
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
+            if (currentUser) {
+                const savedRole = localStorage.getItem("userRole");
+                setRole(savedRole || null);
+            } else {
+                setRole(null);
+            }
             setLoading(false);
         });
         return () => unsubscribe();
     }, []);
 
-    // Email/Password Login
-    const loginWithEmail = (email, password) => {
-        setLoading(true);
-        return signInWithEmailAndPassword(auth, email, password);
-    };
-
-    // Email/Password Register
-    const registerWithEmail = (email, password) => {
-        setLoading(true);
-        return createUserWithEmailAndPassword(auth, email, password);
-    };
-
-    // Google Login
-    const loginWithGoogle = () => {
-        setLoading(true);
-        return signInWithPopup(auth, googleProvider);
-    };
-
-    // Logout
-    const logout = () => {
-        setLoading(true);
-        return signOut(auth);
-    };
-
-    const value = {
-        user,
-        loading,
-        loginWithEmail,
-        registerWithEmail,
-        loginWithGoogle,
-        logout,
-    };
-
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+    return (
+        <AuthContext.Provider value={{ user, role, loading, registerWithEmail, loginWithEmail, loginWithGoogle, logout }}>
+            {children}
+        </AuthContext.Provider>
+    );
 };
 
-// Custom Hook for Easy Access
 export const useAuth = () => useContext(AuthContext);

@@ -1,107 +1,56 @@
-// src/pages/public/Login.jsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthProvider";
-import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
-    const { loginWithEmail, loginWithGoogle, resetPassword } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [roleSelect, setRoleSelect] = useState("employee");
+    const { loginWithEmail, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
 
     const handleEmailLogin = async (e) => {
         e.preventDefault();
-        setLoading(true);
         try {
-            await loginWithEmail(email, password);
-            navigate("/"); // Redirect after login
-        } catch (err) {
-            alert(err.message);
-        } finally {
-            setLoading(false);
+            await loginWithEmail(email, password, roleSelect);
+            if (roleSelect === "hr") navigate("/hr");
+            else navigate("/employee");
+        } catch (error) {
+            console.log(error.message);
         }
     };
 
     const handleGoogleLogin = async () => {
-        setLoading(true);
         try {
-            await loginWithGoogle();
-            navigate("/");
-        } catch (err) {
-            alert(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleForgotPassword = async () => {
-        if (!email) return alert("Please enter your email to reset password");
-        try {
-            await resetPassword(email);
-            alert("Password reset email sent!");
-        } catch (err) {
-            alert(err.message);
+            await loginWithGoogle(roleSelect);
+            if (roleSelect === "hr") navigate("/hr");
+            else navigate("/employee");
+        } catch (error) {
+            console.log(error.message);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-indigo-100 p-4">
-            <div className="bg-white p-10 rounded-xl shadow-lg w-full max-w-md">
-                <h1 className="text-3xl font-bold text-indigo-600 mb-6 text-center">
-                    Login to AssetVerse
-                </h1>
+        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+            <form onSubmit={handleEmailLogin} className="bg-white p-8 rounded shadow-md w-96">
+                <h2 className="text-2xl font-bold mb-4">Login</h2>
 
-                <form onSubmit={handleEmailLogin} className="flex flex-col gap-4">
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="input input-bordered w-full focus:ring-2 focus:ring-indigo-400"
-                        required
-                    />
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="input input-bordered w-full focus:ring-2 focus:ring-indigo-400"
-                        required
-                    />
-                    <button
-                        type="submit"
-                        className={`btn btn-primary w-full ${loading ? "loading" : ""}`}
-                    >
-                        Login
-                    </button>
-                </form>
+                <label className="block mb-2">Role</label>
+                <select className="mb-4 w-full border p-2 rounded" value={roleSelect} onChange={e => setRoleSelect(e.target.value)}>
+                    <option value="employee">Employee</option>
+                    <option value="hr">HR</option>
+                </select>
 
-                <button
-                    onClick={handleGoogleLogin}
-                    className="btn btn-outline w-full mt-4"
-                >
-                    Login with Google
-                </button>
+                <label className="block mb-2">Email</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="mb-4 w-full border p-2 rounded" required />
 
-                <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
-                    <button
-                        onClick={handleForgotPassword}
-                        className="hover:underline"
-                    >
-                        Forgot Password?
-                    </button>
-                    <Link to="/register-employee" className="hover:underline">
-                        Register as Employee
-                    </Link>
-                </div>
+                <label className="block mb-2">Password</label>
+                <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="mb-4 w-full border p-2 rounded" required />
 
-                <div className="mt-2 text-center text-sm text-gray-500">
-                    <Link to="/register-hr" className="hover:underline">
-                        Register as HR
-                    </Link>
-                </div>
-            </div>
+                <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded mb-2">Login</button>
+
+                <button type="button" onClick={handleGoogleLogin} className="w-full bg-red-500 text-white py-2 rounded">Login with Google</button>
+            </form>
         </div>
     );
 };
