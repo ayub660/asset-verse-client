@@ -1,40 +1,45 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import api from "../../services/api";
-import Swal from "sweetalert2";
 
 const AddAssetForm = () => {
-    const [formData, setFormData] = useState({
-        name: "",
-        type: "",
-    });
+    const [name, setName] = useState("");
+    const [category, setCategory] = useState("");
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-
-        api.post("/assets", formData)
-            .then(() => {
-                Swal.fire("Success", "Asset Added Successfully", "success");
-            })
-            .catch(() => Swal.fire("Error", "Failed to Add Asset", "error"));
+        try {
+            await api.post("/assets", { name, category, status: "Available" });
+            alert("Asset added successfully!");
+            setName("");
+            setCategory("");
+        } catch (error) {
+            console.log(error);
+            alert("Failed to add asset");
+        }
     };
 
     return (
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+        <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-96">
+            <h2 className="text-xl font-bold mb-4">Add Asset</h2>
             <input
                 type="text"
                 placeholder="Asset Name"
-                className="input input-bordered w-full"
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="mb-4 w-full border p-2 rounded"
+                required
             />
-
             <input
                 type="text"
-                placeholder="Asset Type"
-                className="input input-bordered w-full"
-                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                placeholder="Category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="mb-4 w-full border p-2 rounded"
+                required
             />
-
-            <button className="btn btn-primary w-full">Add Asset</button>
+            <button type="submit" className="bg-green-600 text-white py-2 px-4 rounded">
+                Add Asset
+            </button>
         </form>
     );
 };
