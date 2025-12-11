@@ -1,13 +1,19 @@
 // src/components/common/Navbar.jsx
 import React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthProvider";
 import { FaUserCircle } from "react-icons/fa";
 
 const Navbar = () => {
     const { user, role, logout } = useAuth();
+    const navigate = useNavigate(); // navigate for logout redirect
 
     const activeClass = "text-primary font-semibold";
+
+    const handleLogout = async () => {
+        await logout(); // logout from auth context
+        navigate("/login"); // redirect to login page
+    };
 
     return (
         <nav className="bg-white shadow-md px-6 py-4 flex items-center justify-between">
@@ -16,9 +22,9 @@ const Navbar = () => {
                 AssetVerse
             </Link>
 
-            {/* Public Links - centered */}
+            {/* Public Links */}
             {!user && (
-                <div className="flex gap-6 mx-auto">
+                <div className="flex gap-6 absolute left-1/2 transform -translate-x-1/2">
                     <NavLink
                         to="/"
                         className={({ isActive }) => (isActive ? activeClass : "text-gray-600")}
@@ -40,13 +46,10 @@ const Navbar = () => {
                 </div>
             )}
 
-            {/* Login / User Dropdown */}
+            {/* User Dropdown */}
             <div className="ml-auto">
                 {!user ? (
-                    <Link
-                        to="/login"
-                        className="btn btn-primary btn-sm"
-                    >
+                    <Link to="/login" className="btn btn-primary btn-sm">
                         Login
                     </Link>
                 ) : (
@@ -57,7 +60,8 @@ const Navbar = () => {
                             ) : (
                                 <FaUserCircle className="w-8 h-8 text-gray-500" />
                             )}
-                            <span className="ml-1">{role === "hr" ? "HR" : "Employee"}</span>
+                            {/* Show user name instead of role */}
+                            <span className="ml-1">{user.displayName || "User"}</span>
                         </label>
                         <ul
                             tabIndex={0}
@@ -66,7 +70,7 @@ const Navbar = () => {
                             {role === "employee" && (
                                 <>
                                     <li>
-                                        <Link to="/employee/my-assets">My Assets</Link>
+                                        <Link to="/employee">My Assets</Link>
                                     </li>
                                     <li>
                                         <Link to="/employee/team">My Team</Link>
@@ -79,10 +83,10 @@ const Navbar = () => {
                             {role === "hr" && (
                                 <>
                                     <li>
-                                        <Link to="/hr">Asset List</Link>
+                                        <Link to="/hr">Dashboard</Link>
                                     </li>
                                     <li>
-                                        <Link to="/hr/add-asset">Add Asset</Link>
+                                        <Link to="/hr/assets">Asset List</Link>
                                     </li>
                                     <li>
                                         <Link to="/hr/requests">All Requests</Link>
@@ -90,13 +94,18 @@ const Navbar = () => {
                                     <li>
                                         <Link to="/hr/employees">Employee List</Link>
                                     </li>
+                                    <li>
+                                        <Link to="/hr/upgrade">Upgrade Package</Link>
+                                    </li>
                                 </>
                             )}
                             <li>
                                 <Link to="/profile">Profile</Link>
                             </li>
                             <li>
-                                <button onClick={logout}>Logout</button>
+                                <button className="w-full text-left" onClick={handleLogout}>
+                                    Logout
+                                </button>
                             </li>
                         </ul>
                     </div>

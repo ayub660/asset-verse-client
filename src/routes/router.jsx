@@ -7,7 +7,7 @@ import DashboardLayout from "../components/layout/DashboardLayout";
 
 // Public Pages
 import Home from "../pages/public/Home";
-import LoginPage from "../pages/public/Login";          // নাম পরিবর্তন
+import LoginPage from "../pages/public/Login";
 import RegisterHR from "../pages/public/RegisterHR";
 import RegisterEmployee from "../pages/public/RegisterEmployee";
 import NotFound from "../pages/public/NotFound";
@@ -16,7 +16,7 @@ import NotFound from "../pages/public/NotFound";
 import HRDashboard from "../pages/hr/Dashboard";
 import HRAssets from "../pages/hr/Assets";
 import HRRequests from "../pages/hr/Requests";
-import HREmployees from "../pages/hr/Employees";       // নাম পরিবর্তন
+import HREmployees from "../pages/hr/Employees";
 import HRUpgrade from "../pages/hr/Upgrade";
 
 // Employee Pages
