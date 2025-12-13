@@ -1,9 +1,12 @@
 import React from "react";
 import ThemeToggle from "../ThemeToggle/ThemeToggle";
 import Logo from "../Logo/Logo";
-import { NavLink } from "react-router";
+import { Link, NavLink } from "react-router";
+import useAuth from "../../hooks/useAuth";
 
 const Navbar = () => {
+  const {user}=useAuth()
+  console.log(user)
   const navLinks = (
     <>
       <li>
@@ -14,14 +17,30 @@ const Navbar = () => {
           Home
         </NavLink>
       </li>
-      <div className="md:hidden">
+      <li>
+        <NavLink
+          className="border border-primary rounded-sm font-semibold text-primary"
+          to="/register-hr"
+        >
+          join as HR
+        </NavLink>
+      </li>
+      <li>
+        <NavLink
+          className="border border-primary rounded-sm font-semibold text-primary"
+          to="/register-employee"
+        >
+          Join as Epmloyee
+        </NavLink>
+      </li>
+      <li className="md:hidden">
         <ThemeToggle></ThemeToggle>
-      </div>
+      </li>
     </>
   );
 
   return (
-    <div className="navbar bg-[#2A2E37] shadow-xs shadow-neutral">
+    <div className="navbar bg-base-300 shadow-xs shadow-neutral rounded-sm">
       <div className="navbar-start">
         <div className="dropdown">
           <div tabIndex={0} role="button" className="btn btn-ghost md:hidden">
@@ -48,15 +67,18 @@ const Navbar = () => {
             {navLinks}
           </ul>
         </div>
-        <a className="btn btn-ghost">
+        <div>
           <Logo></Logo>
-        </a>
+        </div>
       </div>
       <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1">{navLinks}</ul>
+        <ul className="menu menu-horizontal space-x-1 px-1">{navLinks}</ul>
       </div>
       <div className="navbar-end">
         <div className="hidden md:block">
+          <Link to="/login" className="btn btn-primary">
+            Login
+          </Link>
           <ThemeToggle></ThemeToggle>
         </div>
       </div>

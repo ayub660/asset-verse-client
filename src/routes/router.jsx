@@ -30,9 +30,9 @@ export const router = createBrowserRouter([
         Component: RegistyerEmployee,
       },
       {
-        path:'register-hr',
-        Component: RegisterHR
-      }
+        path: "register-hr",
+        Component: RegisterHR,
+      },
     ],
   },
 ]);

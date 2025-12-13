@@ -1,29 +1,47 @@
 import React from "react";
+import { Helmet } from "react-helmet";
 import { Link } from "react-router";
 
 const Login = () => {
   return (
-    <div className="flex justify-center items-center my-6 md:my-30">
-      <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-lg shadow-neutral pt-5 mx-auto">
+    <div className="min-h-screen flex justify-center items-center px-4 py-10">
+        <Helmet><title>Login | AssetVerse</title></Helmet>
+      <div className="card bg-base-100 w-full max-w-sm sm:max-w-md shadow-lg shadow-neutral rounded-xl p-6">
         <h2>Login</h2>
-        <div className="card-body">
-          <fieldset className="fieldset">
+
+        <div className="card-body px-0">
+          <fieldset className="fieldset flex flex-col gap-3">
+            {/* Email */}
             <label className="label">Email</label>
-            <input type="email" className="input" placeholder="Email" />
+            <input
+              type="email"
+              className="input outline-none border-primary w-full"
+              placeholder="Email"
+            />
+
+            {/* Password */}
             <label className="label">Password</label>
-            <input type="password" className="input" placeholder="Password" />
-            <div>
-              <a className="link link-hover">Forgot password?</a>
+            <input
+              type="password"
+              className="input outline-none border-primary w-full"
+              placeholder="Password"
+            />
+
+            {/* Forgot password link*/}
+            <div className="text-right mt-1">
+              <a className="link link-hover text-sm">Forgot password?</a>
             </div>
-            <button className="btn btn-primary mt-4">Login</button>
-            <div>
-              <p>
-                Don't have an accout ?{' '}
+
+            {/* Login Button */}
+            <button className="btn btn-primary w-full mt-2">Login</button>
+
+            {/* Register link*/}
+                <p className="text-center mt-4 text-sm">
+                Don't have an account?{" "}
                 <Link to="/register-employee" className="link text-secondary">
-                  Register
+                    Register
                 </Link>
-              </p>
-            </div>
+                </p>
           </fieldset>
         </div>
       </div>

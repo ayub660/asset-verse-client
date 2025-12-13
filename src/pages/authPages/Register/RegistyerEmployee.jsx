@@ -1,40 +1,68 @@
-import React from 'react';
-import { Link } from 'react-router';
+import React from "react";
+import { Helmet } from "react-helmet";
+import { Link } from "react-router";
+import useAuth from "../../../hooks/useAuth";
+import { useForm } from "react-hook-form";
 
-const RegistyerEmployee = () => {
-    return (
-      <div className="flex justify-center items-center my-6 md:my-30">
-        <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-lg shadow-neutral pt-5 mx-auto">
-          <h2>Register as Employee</h2>
-          <p className="text-center">
-            or Register as{' '}
-            <Link to="/register-hr" className="link text-secondary">
-              HR
-            </Link>
-          </p>
-          <div className="card-body">
-            <fieldset className="fieldset">
-              <label className="label">Email</label>
-              <input type="email" className="input" placeholder="Email" />
-              <label className="label">Password</label>
-              <input type="password" className="input" placeholder="Password" />
-              <div>
-                <a className="link link-hover">Forgot password?</a>
-              </div>
-              <button className="btn btn-primary mt-4">Register</button>
-              <div>
-                <p>
-                  Already have an accout ?{' '}
-                  <Link to="/login" className="link text-secondary">
-                    Login
-                  </Link>
-                </p>
-              </div>
-            </fieldset>
-          </div>
+const RegisterEmployee = () => {
+  const { registerUser } = useAuth();
+
+
+  const {register,handleSubmit}=useForm()
+  return (
+    <div className="min-h-screen flex justify-center items-center px-4 py-10">
+      <Helmet>
+        <title>Register | AssetVerse</title>
+      </Helmet>
+      <div className="card bg-base-100 w-full max-w-sm sm:max-w-md shadow-lg shadow-neutral rounded-xl p-6">
+        <h2>Register as Employee</h2>
+        <p className="text-center mt-1">
+          or Register as{" "}
+          <Link to="/register-hr" className="link text-secondary">
+            HR
+          </Link>
+        </p>
+
+        <div className="card-body px-0">
+          <fieldset className="fieldset flex flex-col gap-3">
+            <label {...register("name")} className="label">
+              Name
+            </label>
+            <input
+              type="text"
+              className="input outline-none border-primary w-full"
+              placeholder="Full Name"
+            />
+            <label {...register("email")} className="label">
+              Email
+            </label>
+            <input
+              type="email"
+              className="input outline-none border-primary w-full"
+              placeholder="Email"
+            />
+
+            <label className="label">Password</label>
+            <input
+              {...register("password")}
+              type="password"
+              className="input outline-none border-primary w-full"
+              placeholder="Password"
+            />
+
+            <button className="btn btn-primary w-full mt-2">Register</button>
+
+            <p className="text-center">
+              Already have an account?{" "}
+              <Link to="/login" className="link text-secondary">
+                Login
+              </Link>
+            </p>
+          </fieldset>
         </div>
       </div>
-    );
+    </div>
+  );
 };
 
-export default RegistyerEmployee;
+export default RegisterEmployee;

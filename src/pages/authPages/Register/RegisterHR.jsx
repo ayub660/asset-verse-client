@@ -1,40 +1,153 @@
-import React from 'react';
-import { Link } from 'react-router';
+import React from "react";
+import { Helmet } from "react-helmet";
+import { Link } from "react-router";
+import useAuth from "../../../hooks/useAuth";
+import { useForm } from "react-hook-form";
 
 const RegisterHR = () => {
-    return (
-      <div className="flex justify-center items-center my-6 md:my-30">
-        <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-lg shadow-neutral pt-5 mx-auto">
-          <h2>Register as HR</h2>
-          <p className="text-center">
-            or Register as{' '}
-            <Link to="/register-employee" className="link text-secondary">
-              Employee
-            </Link>
-          </p>
-          <div className="card-body">
-            <fieldset className="fieldset">
-              <label className="label">Email</label>
-              <input type="email" className="input" placeholder="Email" />
-              <label className="label">Password</label>
-              <input type="password" className="input" placeholder="Password" />
-              <div>
-                <a className="link link-hover">Forgot password?</a>
-              </div>
-              <button className="btn btn-primary mt-4">Register</button>
-              <div>
-                <p>
-                  Already have an accout ?{' '}
-                  <Link to="/login" className="link text-secondary">
-                    Login
-                  </Link>
+  const { registerUser, updateUserProfile } = useAuth();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const handleRegistration = (data) => {
+    data.role = "hr";
+    data.packageLimit = 5;
+    data.currentEmployees = 0;
+    data.subscription = "basic";
+
+    registerUser(data.email, data.password).then(() => [
+      updateUserProfile(data)
+        .then()
+        .catch((error) => {
+          console.log(error);
+        }),
+    ]);
+    // console.log(data);
+  };
+
+  return (
+    <div className="min-h-screen flex justify-center items-center px-4 py-10">
+      <Helmet>
+        <title>Register | AsserVerse</title>
+      </Helmet>
+      <div className="card bg-base-100 w-full max-w-sm sm:max-w-md shadow-lg shadow-neutral rounded-xl p-6">
+        <h2>Register as HR</h2>
+
+        <p className="text-center mt-1">
+          or Register as{" "}
+          <Link to="/register-employee" className="link text-secondary">
+            Employee
+          </Link>
+        </p>
+        {/* registration form */}
+        <form
+          onSubmit={handleSubmit(handleRegistration)}
+          className="card-body px-0"
+        >
+          <fieldset className="fieldset flex flex-col gap-3">
+            {/* name */}
+            <div>
+              {" "}
+              <label className="label">Name</label>
+              <input
+                {...register("name", { required: true })}
+                type="text"
+                className="input outline-none border-primary w-full"
+                placeholder="Full Name"
+              />
+              {errors.name?.type === "required" && (
+                <p className={`font-medium text-error!`}>Name is Required</p>
+              )}
+            </div>
+            {/* company name */}
+            <div>
+              {" "}
+              <label className="label">Company Name</label>
+              <input
+                {...register("companyName", { required: true })}
+                type="text"
+                className="input outline-none border-primary w-full"
+                placeholder="Company Name"
+              />
+              {errors.companyName?.type === "required" && (
+                <p className={`font-medium text-error!`}>
+                  Company Name is Required
                 </p>
-              </div>
-            </fieldset>
-          </div>
-        </div>
+              )}
+            </div>
+            {/* company logo */}
+            <div>
+              {" "}
+              <label className="label">Company Logo</label>
+              <input
+                {...register("companyLogo", { required: true })}
+                type="file"
+                className="file-input outline-none border-primary w-full"
+                placeholder="Company Logo"
+              />
+              {errors.companyLogo === "required" && (
+                <p className={`font-medium text-error!`}>
+                  You did'n chose any image
+                </p>
+              )}
+            </div>
+            {/* email */}
+            <div>
+              {" "}
+              <label className="label">Email</label>
+              <input
+                {...register("email", { required: true })}
+                type="email"
+                className="input outline-none border-primary w-full"
+                placeholder="Professional Email"
+              />
+              {errors.email?.type === "required" && (
+                <p className={`font-medium text-error!`}>Email is Required</p>
+              )}
+            </div>
+            {/* password */}
+            <div>
+              <label className="label">Password</label>
+              <input
+                {...register("password", { required: true })}
+                type="password"
+                className="input outline-none border-primary w-full"
+                placeholder="Password"
+              />
+              {errors.password?.type === "required" && (
+                <p className={`font-medium text-error!`}>
+                  Password is Required
+                </p>
+              )}
+            </div>
+            {/* date of birth */}
+            <div>
+              <label className="label">Date of Birth</label>
+              <input
+                {...register("dateOfBirth", { required: true })}
+                type="date"
+                className="input outline-none border-primary w-full"
+              />
+              {errors.dateOfBirth?.type === "required" && (
+                <p className={`font-medium text-error!`}>Date is Required</p>
+              )}
+            </div>
+            <button className="btn btn-primary w-full mt-2">Register</button>
+
+            <p className="text-center">
+              Already have an account?{" "}
+              <Link to="/login" className="link text-secondary">
+                Login
+              </Link>
+            </p>
+          </fieldset>
+        </form>
       </div>
-    );
+    </div>
+  );
 };
 
 export default RegisterHR;
