@@ -7,7 +7,7 @@ import useAuth from "../../hooks/useAuth";
 const Navbar = () => {
   const { user, logOut } = useAuth();
   const photo = user?.photoURL || user?.providerData[0]?.photoURL;
-console.log(user)
+  console.log(user);
   const handleLogOut = () => {
     logOut();
   };
@@ -99,7 +99,7 @@ console.log(user)
                         user?.displayName || user?.providerData[0]?.displayName
                       }
                       title={
-                        user?.displayName || user?.providerData[0]?.displayName
+                       `${ user?.displayName || user?.providerData[0]?.displayName} | Dashboard`
                       }
                     />
                   ) : (
@@ -114,7 +114,7 @@ console.log(user)
                 </button>
               </div>
             ) : (
-              <Link to="/login" className="btn bg-primary">
+              <Link to="/login" className="btn btn-primary">
                 Log In
               </Link>
             )}

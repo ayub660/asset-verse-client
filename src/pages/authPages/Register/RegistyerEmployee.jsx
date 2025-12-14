@@ -1,14 +1,59 @@
-import React from "react";
+import React, { useState } from "react";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router";
 import useAuth from "../../../hooks/useAuth";
 import { useForm } from "react-hook-form";
+import useAxios from "../../../hooks/useAxios";
 
 const RegisterEmployee = () => {
-  const { registerUser } = useAuth();
+   const axios = useAxios();
+   const { registerUser, updateUserProfile } = useAuth();
+   const [passType, setPassType] = useState(false);
+
+   const {
+     register,
+     handleSubmit,
+     formState: { errors },
+   } = useForm();
+
+   const handleRegistration = async (data) => {
+     try {
+       data.role = "hr";
+       data.packageLimit = 5;
+       data.currentEmployees = 0;
+       data.subscription = "basic";
+
+       // 1️⃣ Firebase auth
+       await registerUser(data.email, data.password);
+
+       // 2️⃣ Update Firebase profile (ONLY name + photo)
+       await updateUserProfile({
+         displayName: data.name,
+         photoURL: data.companyLogo,
+       });
+
+       // 3️⃣ Save HR info to MongoDB
+       const hrInfo = {
+         name: data.name,
+         email: data.email,
+         role: "hr",
+         companyName: data.companyName,
+         companyLogo: data.companyLogo,
+         dateOfBirth: data.dateOfBirth,
+         packageLimit: 5,
+         currentEmployees: 0,
+         subscription: "basic",
+         createdAt: new Date(),
+       };
+
+       const res = await axios.post("/users", hrInfo);
+       console.log("User saved:", res.data);
+     } catch (error) {
+       console.error(error);
+     }
+   };
 
 
-  const {register,handleSubmit}=useForm()
   return (
     <div className="min-h-screen flex justify-center items-center px-4 py-10">
       <Helmet>
@@ -23,7 +68,7 @@ const RegisterEmployee = () => {
           </Link>
         </p>
 
-        <form onSubmit={handleSubmit} className="card-body px-0">
+        <form onSubmit={handleSubmit(handleRegistration)} className="card-body px-0">
           <fieldset className="fieldset flex flex-col gap-3">
             <label {...register("name")} className="label">
               Name

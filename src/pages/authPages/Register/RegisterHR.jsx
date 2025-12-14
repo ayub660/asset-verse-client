@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { Helmet } from "react-helmet";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import useAuth from "../../../hooks/useAuth";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import useAxios from "../../../hooks/useAxios";
 
 const RegisterHR = () => {
-  const axios = useAxios()
+  const axios = useAxios();
+  const navigate = useNavigate();
   const { registerUser, updateUserProfile } = useAuth();
   const [passType, setPassType] = useState(false);
 
@@ -34,7 +35,7 @@ const RegisterHR = () => {
       });
 
       // 3️⃣ Save HR info to MongoDB
-      const hrUser = {
+      const hrInfo = {
         name: data.name,
         email: data.email,
         role: "hr",
@@ -47,28 +48,13 @@ const RegisterHR = () => {
         createdAt: new Date(),
       };
 
-      const res = await axios.post("/users", hrUser);
+      const res = await axios.post("/users", hrInfo);
       console.log("User saved:", res.data);
+      navigate("/");
     } catch (error) {
       console.error(error);
     }
   };
-
-  // const handleRegistration = (data) => {
-  //   data.role = "hr";
-  //   data.packageLimit = 5;
-  //   data.currentEmployees = 0;
-  //   data.subscription = "basic";
-
-  //   registerUser(data.email, data.password).then(() => [
-  //     updateUserProfile(data)
-  //       .then()
-  //       .catch((error) => {
-  //         console.log(error);
-  //       }),
-  //   ]);
-  //   // console.log(data);
-  // };
 
   return (
     <div className="min-h-screen flex justify-center items-center px-4 py-10">
