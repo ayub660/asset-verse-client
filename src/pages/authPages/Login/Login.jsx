@@ -4,10 +4,12 @@ import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { Link, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import useAuth from "../../../hooks/useAuth";
+import useAxios from "../../../hooks/useAxios";
 
 const Login = () => {
+  const axios=useAxios()
   const { loginUser } = useAuth();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [passType, setPassType] = useState(false);
 
   const {
@@ -19,7 +21,14 @@ const Login = () => {
   const handleLogin = async (data) => {
     try {
       await loginUser(data.email, data.password);
-      // navigate("/dashboard"); // or role-based redirect later
+          const result = await loginUser(data.email, data.password);
+
+         const res = await axios.post("/jwt", {
+           email: result.user.email,
+         });
+
+         localStorage.setItem("access-token", res.data.token);
+      navigate("/"); // or role-based redirect later
     } catch (err) {
       console.error(err);
     }

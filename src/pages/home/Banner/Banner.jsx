@@ -16,7 +16,7 @@ const Banner = () => {
 
         {/* Content */}
         <div className="flex-1 text-center lg:text-left">
-          <h1 className={`text-start! text-2xl sm:text-3xl lg:text-4xl font-bold text-primary leading-tight`}>
+          <h1 className={`md:text-start! text-2xl sm:text-3xl lg:text-4xl font-bold text-primary leading-tight`}>
             Smart Asset Management for Modern Organizations
           </h1>
 

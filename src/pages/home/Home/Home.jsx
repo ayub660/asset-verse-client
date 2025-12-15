@@ -15,6 +15,7 @@ const Home = () => {
         <title>Home | AssetVerse</title>
       </Helmet>
       <Banner></Banner>
+
       <About></About>
       <HowItWorks></HowItWorks>
       <Packages></Packages>
