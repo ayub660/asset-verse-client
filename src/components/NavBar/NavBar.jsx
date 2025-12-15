@@ -78,7 +78,7 @@ const Navbar = () => {
               <Link
                 to="/dashboard"
                 className="tooltip tooltip-bottom"
-                data-tip="Dashboard"
+                data-tip={`${user?.displayName} | Dashboard`}
               >
                 {photo ? (
                   <img

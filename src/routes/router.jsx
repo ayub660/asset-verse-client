@@ -5,6 +5,9 @@ import authLayout from "../layouts/authLayout";
 import Login from "../pages/authPages/Login/Login";
 import RegistyerEmployee from "../pages/authPages/Register/RegistyerEmployee";
 import RegisterHR from "../pages/authPages/Register/RegisterHR";
+import PrivateRoute from "../routes/PrivateRoute";
+import DashboardLayout from "../layouts/DashboardLayout";
+import DashboardHome from "../pages/dashboard/DashboardHome/DashboardHome";
 
 export const router = createBrowserRouter([
   {
@@ -32,6 +35,20 @@ export const router = createBrowserRouter([
       {
         path: "register-hr",
         Component: RegisterHR,
+      },
+    ],
+  },
+  {
+    path: "dashboard",
+    element: (
+      <PrivateRoute>
+        <DashboardLayout></DashboardLayout>
+      </PrivateRoute>
+    ),
+    children: [
+      {
+        index: true,
+        Component: DashboardHome,
       },
     ],
   },
