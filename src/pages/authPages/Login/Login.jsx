@@ -52,7 +52,7 @@ const Login = () => {
               {" "}
               <label className="label">Email</label>
               <input
-                {...register("email", { required: true })}
+                {...register("email")}
                 type="email"
                 className="input"
                 placeholder="Your Email"
@@ -66,7 +66,7 @@ const Login = () => {
             <div>
               <label className="label">Password</label>
               <input
-                {...register("password", { required: true })}
+                {...register("password")}
                 type={passType ? "text" : "password"}
                 className="input"
                 placeholder="Password"

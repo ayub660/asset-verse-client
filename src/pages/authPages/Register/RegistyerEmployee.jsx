@@ -66,7 +66,7 @@ const RegisterEmployee = () => {
               {" "}
               <label className="label">Name</label>
               <input
-                {...register("name", { required: true })}
+                {...register("name")}
                 type="text"
                 className="input"
                 placeholder="Full Name"
@@ -80,7 +80,7 @@ const RegisterEmployee = () => {
               {" "}
               <label className="label">Email</label>
               <input
-                {...register("email", { required: true })}
+                {...register("email")}
                 type="email"
                 className="input"
                 placeholder="Your Email"
@@ -94,7 +94,7 @@ const RegisterEmployee = () => {
             <div>
               <label className="label">Password</label>
               <input
-                {...register("password", { required: true })}
+                {...register("password")}
                 type={passType ? "text" : "password"}
                 className="input"
                 placeholder="Password"
@@ -115,7 +115,7 @@ const RegisterEmployee = () => {
             <div>
               <label className="label">Date of Birth</label>
               <input
-                {...register("dateOfBirth", { required: true })}
+                {...register("dateOfBirth")}
                 type="date"
                 className="input"
               />

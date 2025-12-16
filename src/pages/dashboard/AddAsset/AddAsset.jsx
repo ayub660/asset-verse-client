@@ -67,7 +67,9 @@ const AddAsset = () => {
         <title>Add Asset | AssetVerse</title>
       </Helmet>
 
-      <h2 className="text-3xl font-bold mb-6 text-center text-primary">Add New Asset</h2>
+      <h2 className="text-3xl font-bold mb-6 text-center text-primary">
+        Add New Asset
+      </h2>
 
       <div className="card bg-base-100 shadow-lg rounded-xl">
         <form
@@ -78,7 +80,7 @@ const AddAsset = () => {
           <div>
             <label className="label">Product Name</label>
             <input
-              {...register("productName", { required: true })}
+              {...register("productName")}
               className="input"
               placeholder="Laptop, Chair, Monitor"
             />
@@ -91,7 +93,7 @@ const AddAsset = () => {
           <div>
             <label className="label">Product Image URL</label>
             <input
-              {...register("productImage", { required: true })}
+              {...register("productImage")}
               className="input"
               placeholder="https://image-url.com"
             />
@@ -104,7 +106,7 @@ const AddAsset = () => {
           <div>
             <label className="label">Product Type</label>
             <select
-              {...register("productType", { required: true })}
+              {...register("productType")}
               className="select w-full border-primary outline-none"
             >
               <option value="">Select Type</option>
@@ -146,11 +148,7 @@ const AddAsset = () => {
           {/* Company Name */}
           <div>
             <label className="label">Company Name</label>
-            <input
-              {...register("companyName", { required: true })}
-              className="input"
-              readOnly
-            />
+            <input {...register("companyName")} className="input" readOnly />
           </div>
 
           <button className="btn btn-primary w-full mt-4">Add Asset</button>

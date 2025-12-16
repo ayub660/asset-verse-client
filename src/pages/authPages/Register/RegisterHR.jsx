@@ -76,7 +76,7 @@ const RegisterHR = () => {
               {" "}
               <label className="label">Name</label>
               <input
-                {...register("name", { required: true })}
+                {...register("name")}
                 type="text"
                 className="input"
                 placeholder="Full Name"
@@ -90,7 +90,7 @@ const RegisterHR = () => {
               {" "}
               <label className="label">Company Name</label>
               <input
-                {...register("companyName", { required: true })}
+                {...register("companyName")}
                 type="text"
                 className="input"
                 placeholder="Company Name"
@@ -106,7 +106,7 @@ const RegisterHR = () => {
               {" "}
               <label className="label">Company Logo</label>
               <input
-                {...register("companyLogo", { required: true })}
+                {...register("companyLogo")}
                 type="text"
                 className="input"
                 placeholder="Company Name"
@@ -122,7 +122,7 @@ const RegisterHR = () => {
               {" "}
               <label className="label">Email</label>
               <input
-                {...register("email", { required: true })}
+                {...register("email")}
                 type="email"
                 className="input"
                 placeholder="Professional Email"
@@ -135,7 +135,7 @@ const RegisterHR = () => {
             <div>
               <label className="label">Password</label>
               <input
-                {...register("password", { required: true })}
+                {...register("password")}
                 type={passType ? "text" : "password"}
                 className="input"
                 placeholder="Password"
@@ -156,7 +156,7 @@ const RegisterHR = () => {
             <div>
               <label className="label">Date of Birth</label>
               <input
-                {...register("dateOfBirth", { required: true })}
+                {...register("dateOfBirth")}
                 type="date"
                 className="input"
               />
