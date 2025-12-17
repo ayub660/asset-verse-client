@@ -213,9 +213,9 @@ const DashboardLayout = () => {
                 data-tip="LogOut"
               >
                 <IoLogOut />
-                <span className="is-drawer-close:hidden">
+              
                   <span className="is-drawer-close:hidden">LogOut</span>
-                </span>
+              
               </button>
             </li>
           </ul>

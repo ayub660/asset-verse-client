@@ -3,7 +3,7 @@ import RootLayout from "../layouts/RootLayout";
 import Home from "../pages/home/Home/Home";
 import AuthLayout from "../layouts/AuthLayout";
 import Login from "../pages/authPages/Login/Login";
-import RegistyerEmployee from "../pages/authPages/Register/RegistyerEmployee";
+import RegisterEmployee from "../pages/authPages/Register/RegisterEmployee";
 import RegisterHR from "../pages/authPages/Register/RegisterHR";
 import PrivateRoute from "../routes/PrivateRoute";
 import DashboardLayout from "../layouts/DashboardLayout";
@@ -36,7 +36,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "register-employee",
-        Component: RegistyerEmployee,
+        Component: RegisterEmployee,
       },
       {
         path: "register-hr",
