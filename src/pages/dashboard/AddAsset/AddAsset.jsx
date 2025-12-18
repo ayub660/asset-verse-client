@@ -46,6 +46,7 @@ const AddAsset = () => {
       productQuantity: Number(data.productQuantity),
       hrEmail: data.hrEmail,
       companyName: data.companyName,
+      companyLogo: userHR.companyLogo,
       createdAt: new Date(),
     };
 

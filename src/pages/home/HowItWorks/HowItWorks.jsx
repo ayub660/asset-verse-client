@@ -32,7 +32,6 @@ const HowItWorks = () => {
   return (
     <section className="py-14 sm:py-16 lg:py-20 px-4 sm:px-8 lg:px-12  rounded-lg shadow-sm shadow-neutral bg-base-100">
       <div className="max-w-7xl mx-auto text-center">
-        {/* Section Header */}
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-4">
           How AssetVerse Works
         </h2>
@@ -40,8 +39,6 @@ const HowItWorks = () => {
           AssetVerse simplifies asset management for your organization in four
           easy steps.
         </p>
-
-        {/* Steps Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {steps.map((step, index) => (
             <div

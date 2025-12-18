@@ -26,7 +26,7 @@ const DashboardLayout = () => {
       <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
         {/* Navbar */}
-        <nav className="navbar max-w-sm md:max-w-md lg:max-w-lg xl:max-w-full bg-base-300">
+        <nav className="navbar max-w-full bg-base-300">
           <label
             htmlFor="my-drawer-4"
             aria-label="open sidebar"
