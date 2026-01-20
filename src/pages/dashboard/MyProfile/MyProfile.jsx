@@ -1,13 +1,16 @@
+
 import React from "react";
 import useAuth from "../../../hooks/useAuth";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import Loading from "../../../components/Loading/Loading";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router";
 
 const MyProfile = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
 
+  // Fetch profile data
   const { data: profile = {}, isLoading } = useQuery({
     queryKey: ["my-profile", user?.email],
     enabled: !!user?.email,
@@ -17,7 +20,16 @@ const MyProfile = () => {
     },
   });
 
-  if (isLoading) return <Loading />;
+  // Fetch total assets (for HR)
+  const { data: totalAssets = [], isLoading: assetsLoading } = useQuery({
+    queryKey: ["totalAssets"],
+    queryFn: async () => {
+      const res = await axiosSecure.get("/assets");
+      return res.data;
+    },
+  });
+
+  if (isLoading || assetsLoading) return <Loading />;
 
   return (
     <div className="min-h-screen flex justify-center items-center px-2 sm:px-4 md:px-16 lg:px-32 md:py-10 bg-base-200">
@@ -41,23 +53,54 @@ const MyProfile = () => {
                 <>
                   <InfoRow label="Company Name" value={profile.companyName} />
                   <InfoRow label="Email" value={profile.email} />
-                  <InfoRow label="Date of Birth" value={profile.dateOfBirth} />
                   <InfoRow label="Role" value="HR" />
-                  <InfoRow label="Subscription" value={profile.subscription} />
                   <InfoRow
                     label="Joined On"
                     value={new Date(profile.createdAt).toLocaleDateString()}
                   />
+                  <InfoRow
+                    label="Total Assets"
+                    value={totalAssets.length}
+                    to="/dashboard/asset-list"
+                  />
+                  <InfoRow
+                    label="Employees Used"
+                    value={`${profile.currentEmployees}`}
+                    to="/dashboard/my-employees"
+                  />
+                  <InfoRow
+                    label="Package Limit"
+                    value={`${profile.packageLimit}`}
+                  />
+                  <InfoRow label="Subscription" value={profile.subscription} />
+                  <InfoRow
+                    label="Paid Plan"
+                    value={profile.paid ? "Yes" : "No"}
+                  />
+                  <InfoRow label="Date of Birth" value={profile.dateOfBirth} />
                 </>
               ) : (
                 <>
                   <InfoRow label="Email" value={profile.email} />
-                  <InfoRow label="Date of Birth" value={profile.dateOfBirth} />
+                  <InfoRow
+                    label="Affiliations"
+                    value={
+                      profile.affiliations
+                        ?.map((a) => a.companyName)
+                        .join(", ") || "None"
+                    }
+                  />
                   <InfoRow label="Role" value="Employee" />
                   <InfoRow
                     label="Joined On"
                     value={new Date(profile.createdAt).toLocaleDateString()}
                   />
+                  <InfoRow
+                    label="Assets Assigned"
+                    value={profile.assets?.length || 0}
+                    to="/dashboard/my-assetes"
+                  />
+                  <InfoRow label="Date of Birth" value={profile.dateOfBirth} />
                 </>
               )}
             </div>
@@ -74,7 +117,20 @@ const MyProfile = () => {
   );
 };
 
-const InfoRow = ({ label, value }) => {
+// InfoRow with optional link
+const InfoRow = ({ label, value, to }) => {
+  if (to) {
+    return (
+      <Link
+        to={to}
+        className="flex flex-col sm:flex-row sm:justify-between gap-1 hover:text-primary hover:underline"
+      >
+        <span className="font-semibold">{label} :</span>
+        <span className="sm:text-right break-all">{value}</span>
+      </Link>
+    );
+  }
+
   return (
     <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
       <span className="font-semibold">{label} :</span>

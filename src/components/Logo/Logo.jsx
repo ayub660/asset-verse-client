@@ -1,13 +1,8 @@
 import React from "react";
-import lotoImg from "../../assets/logo.png";
-import { Link } from "react-router";
+import logo from "../../assets/feature1.png";
 
 const Logo = () => {
-  return (
-    <Link to="/" className="p-0 m-0 flex justify-center items-center">
-      <img className="w-20 md:w-40 p-0 m-0" src={lotoImg} alt="" />
-    </Link>
-  );
+  return <img src={logo} alt="AssetVerse" className="h-12 w-auto" />;
 };
 
 export default Logo;

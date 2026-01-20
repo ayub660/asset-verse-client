@@ -1,7 +1,7 @@
-import { createBrowserRouter } from "react-router";
+// src/routes/router.jsx
+import { createBrowserRouter } from "react-router-dom";
 import RootLayout from "../layouts/RootLayout";
 import Home from "../pages/home/Home/Home";
-import AuthLayout from "../layouts/AuthLayout";
 import Login from "../pages/authPages/Login/Login";
 import RegisterEmployee from "../pages/authPages/Register/RegisterEmployee";
 import RegisterHR from "../pages/authPages/Register/RegisterHR";
@@ -18,34 +18,40 @@ import EmployeeRoute from "./EmployeeRoute";
 import RequestAnAsset from "../pages/dashboard/RequestAnAsset/RequestAnAsset";
 import ErrorPage from "../pages/ErrorPage/ErrorPage";
 import MyProfile from "../pages/dashboard/MyProfile/MyProfile";
+import PaymentSucess from "../pages/dashboard/PaymentSucess/PaymentSucess";
+import PaymentCancelled from "../pages/dashboard/PaymentCancelled/PaymentCancelled";
+import MyAssets from "../pages/dashboard/MyAssets/MyAssets";
+import MyTeam from "../pages/dashboard/MyTeam/MyTeam";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    Component: RootLayout,
-    errorElement: <ErrorPage></ErrorPage>,
+    element: <RootLayout />,
+    errorElement: <ErrorPage />,
     children: [
       {
         index: true,
-        Component: Home,
+        element: <Home />,
       },
-    ],
-  },
-  {
-    path: "/",
-    Component: AuthLayout,
-    children: [
       {
         path: "login",
-        Component: Login,
+        element: <Login />,
       },
       {
         path: "register-employee",
-        Component: RegisterEmployee,
+        element: <RegisterEmployee />,
       },
       {
         path: "register-hr",
-        Component: RegisterHR,
+        element: <RegisterHR />,
+      },
+      {
+        path: "payment-success",
+        element: <PaymentSucess />,
+      },
+      {
+        path: "payment-cancelled",
+        element: <PaymentCancelled />,
       },
     ],
   },
@@ -53,65 +59,55 @@ export const router = createBrowserRouter([
     path: "dashboard",
     element: (
       <PrivateRoute>
-        <DashboardLayout></DashboardLayout>
+        <DashboardLayout />
+
       </PrivateRoute>
     ),
     children: [
       {
         index: true,
-        Component: DashboardHome,
+        element: <DashboardHome />,
       },
       {
         path: "add-asset",
-        element: (
-          <HrRoute>
-            <AddAsset></AddAsset>
-          </HrRoute>
-        ),
+        element: <HrRoute><AddAsset /></HrRoute>,
       },
       {
         path: "asset-list",
-        element: (
-          <HrRoute>
-            <AssetList></AssetList>
-          </HrRoute>
-        ),
+        element: <HrRoute><AssetList /></HrRoute>,
       },
       {
         path: "all-requests",
-        element: (
-          <HrRoute>
-            <AllRequests></AllRequests>
-          </HrRoute>
-        ),
+        element: <HrRoute><AllRequests /></HrRoute>,
       },
       {
-        path: "all-employees",
-        element: (
-          <HrRoute>
-            <AllEmployees></AllEmployees>
-          </HrRoute>
-        ),
+        path: "my-employees",
+        element: <HrRoute><AllEmployees /></HrRoute>,
       },
       {
-        path: "upgrade-package",
-        element: (
-          <HrRoute>
-            <UpgradePackage></UpgradePackage>
-          </HrRoute>
-        ),
+        path: "upgrade-package-hr",
+        element: <HrRoute><UpgradePackage /></HrRoute>,
+      },
+      {
+        path: "my-assets",
+        element: <EmployeeRoute><MyAssets /></EmployeeRoute>,
       },
       {
         path: "request-asset",
-        element: (
-          <EmployeeRoute>
-            <RequestAnAsset></RequestAnAsset>
-          </EmployeeRoute>
-        ),
+        element: <EmployeeRoute><RequestAnAsset /></EmployeeRoute>,
+      },
+      {
+        path: "my-team",
+        element: <EmployeeRoute><MyTeam /></EmployeeRoute>,
       },
       {
         path: "my-profile",
-        Component: MyProfile,
+        element: <MyProfile />,
+      },
+
+      {
+        path: "payment-success",
+        element: <PaymentSucess />,
       },
     ],
   },

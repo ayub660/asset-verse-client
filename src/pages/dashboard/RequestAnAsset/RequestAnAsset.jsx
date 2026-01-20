@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+// RequestAnAsset.jsx
+import React, { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import Loading from "../../../components/Loading/Loading";
 import { toast } from "react-toastify";
@@ -7,78 +8,87 @@ import { Helmet } from "react-helmet";
 
 const RequestAnAsset = () => {
   const axiosSecure = useAxiosSecure();
+  const queryClient = useQueryClient();
+
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-
   const [currentPage, setCurrentPage] = useState(0);
-
   const limit = 10;
 
-  const {
-    data = {},
-    isLoading,
-
-  } = useQuery({
+  // ------------------ Public Assets ------------------
+  const { data: publicData = { assets: [], total: 0 }, isLoading: publicLoading } = useQuery({
     queryKey: ["public-assets", searchQuery, currentPage],
     queryFn: async () => {
       const res = await axiosSecure.get(
-        `/assets/public?searchText=${searchQuery}&limit=${limit}&skip=${
-          currentPage * limit
-        }`
+        `/assets/public?searchText=${searchQuery}&limit=${limit}&skip=${currentPage * limit}`
       );
       return res.data;
     },
     keepPreviousData: true,
-    staleTime: 1000 * 5,
+    staleTime: 5000,
     refetchOnWindowFocus: false,
   });
 
-  const assets = data.assets || [];
-  const totalAssets = data.total || 0;
+  const assets = publicData.assets || [];
+  const totalAssets = publicData.total || 0;
   const totalPage = Math.ceil(totalAssets / limit);
 
-  const handleConfirmRequest = async () => {
-    setIsSubmitting(true);
-    const res = await axiosSecure.post("/asset-requests", {
-      assetId: selectedAsset._id,
-    });
+  // ------------------ Employee Requests ------------------
+  const { data: requests = [], isLoading: requestsLoading } = useQuery({
+    queryKey: ["my-requests"],
+    queryFn: async () => {
+      const res = await axiosSecure.get("/asset-requests/employee");
+      return res.data;
+    },
+    staleTime: 5000,
+    refetchOnWindowFocus: false,
+  });
 
-    if (res.data.success) {
-      toast.success("Asset request sent successfully");
-      document.getElementById("request_modal").close();
-      setSelectedAsset(null);
-    }
-
-    setIsSubmitting(false);
-  };
+  // ------------------ Handlers ------------------
   const handleSearch = () => {
     setCurrentPage(0);
     setSearchQuery(searchText.trim());
   };
 
-  if (isLoading) return <Loading />;
+  const handleConfirmRequest = async () => {
+    if (!selectedAsset) return;
+    setIsSubmitting(true);
+    try {
+      const res = await axiosSecure.post("/requests", { assetId: selectedAsset._id });
+      if (res.data?.request) {
+        toast.success("Request sent successfully!");
+        setSelectedAsset(null);
+        document.getElementById("request_modal").close();
+        queryClient.invalidateQueries(["my-requests"]);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Request failed");
+    }
+    setIsSubmitting(false);
+  };
+
+  if (publicLoading || requestsLoading) return <Loading />;
 
   return (
-    <div className="py-10 px-4 sm:px-6 lg:px-10 bg-base-100 rounded-xl shadow-sm">
+    <div className="p-6 space-y-6">
       <Helmet>
-        <title>RequestAsset</title>
+        <title>Request Asset | AssetVerse</title>
       </Helmet>
-      <h2 className="text-2xl sm:text-3xl font-bold text-center text-primary mb-6">
-        Request an Asset from Any Companye
-      </h2>
+
+      <h2 className="text-2xl font-bold text-center text-primary">Request an Asset</h2>
 
       {/* Search */}
-      <div className="flex justify-center  mb-6">
+      <div className="flex justify-center">
         <div className="flex gap-2 w-full max-w-sm relative">
           <input
             type="text"
+            placeholder="Search asset..."
             className="input input-bordered flex-1"
-            placeholder="Search asset"
             value={searchText}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             onChange={(e) => setSearchText(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
           <button
             onClick={handleSearch}
@@ -89,112 +99,121 @@ const RequestAnAsset = () => {
         </div>
       </div>
 
-      {assets.length === 0 && (
-        <p className="text-center text-base-content/60 mt-10">
-          No assets found.
-        </p>
-      )}
- 
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
-        {assets.map((product) => (
-          <div
-            key={product._id}
-            className="card bg-base-200 rounded-xl hover:shadow-xl shadow-neutral transition"
-          >
-            <figure className="px-3 pt-3">
-              <img
-                src={product.productImage}
-                alt={product.productName}
-                className="rounded-xl h-60 w-full"
-              />
-            </figure>
-
-            <div className="card-body p-4">
-              <h3 className="text-primary font-semibold text-center md:text-left">
-                {product.productName}
-              </h3>
-
-              <div className="flex justify-between text-sm mt-3">
-                <p className="text-start">
-                  Type:{" "}
-                  <span className="font-semibold">{product.productType}</span>
-                </p>
-                <p className="text-end">
-                  Available:{" "}
-                  <span className="font-semibold">
-                    {product.productQuantity}
-                  </span>
-                </p>
-              </div>
-
-              <button
-                onClick={() => {
-                  setSelectedAsset(product);
-                  document.getElementById("request_modal").showModal();
-                }}
-                disabled={product.productQuantity === 0}
-                className="btn btn-primary btn-sm w-full md:w-auto mt-4"
-              >
-                Request Asset
-              </button>
-            </div>
-          </div>
-        ))}
+      {/* Public Assets Table */}
+      <div className="overflow-x-auto bg-base-100 rounded-lg shadow">
+        <table className="table w-full table-zebra">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Image</th>
+              <th>Asset</th>
+              <th>HR Email</th>
+              <th>Available</th>
+              <th>Type</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {assets.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="text-center py-6 text-gray-500">
+                  No assets found
+                </td>
+              </tr>
+            ) : (
+              assets.map((asset, index) => (
+                <tr key={asset._id}>
+                  <th>{index + 1}</th>
+                  <td>
+                    <div className="mask mask-squircle h-12 w-12">
+                      <img src={asset.productImage} alt={asset.productName} />
+                    </div>
+                  </td>
+                  <td>{asset.productName}</td>
+                  <td>{asset.hrEmail}</td>
+                  <td>{asset.productQuantity}</td>
+                  <td>{asset.productType}</td>
+                  <td>
+                    <button
+                      className="btn btn-xs btn-primary"
+                      disabled={asset.productQuantity === 0}
+                      onClick={() =>
+                        setSelectedAsset(asset) ||
+                        document.getElementById("request_modal").showModal()
+                      }
+                    >
+                      Request
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
 
-      <div className="flex justify-center gap-2 mt-10 flex-wrap">
-        {currentPage > 0 && (
-          <button
-            onClick={() => setCurrentPage((p) => p - 1)}
-            className="btn btn-sm"
-          >
-            Prev
-          </button>
-        )}
-
-        {[...Array(totalPage).keys()].map((page) => (
-          <button
-            key={page}
-            onClick={() => setCurrentPage(page)}
-            className={`btn btn-sm ${
-              page === currentPage ? "btn-primary" : "btn-outline"
-            }`}
-          >
-            {page + 1}
-          </button>
-        ))}
-
-        {currentPage < totalPage - 1 && (
-          <button
-            onClick={() => setCurrentPage((p) => p + 1)}
-            className="btn btn-sm"
-          >
-            Next
-          </button>
-        )}
+      {/* My Requests Table */}
+      <div className="mt-8">
+        <h3 className="text-xl font-semibold mb-2">My Requests</h3>
+        <div className="overflow-x-auto bg-base-100 rounded-lg shadow">
+          <table className="table w-full table-zebra">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Image</th>
+                <th>Asset</th>
+                <th>HR Email</th>
+                <th>Request Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {requests.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-6 text-gray-500">
+                    No requests yet
+                  </td>
+                </tr>
+              ) : (
+                requests.map((req, idx) => (
+                  <tr key={req._id}>
+                    <th>{idx + 1}</th>
+                    <td>
+                      <div className="mask mask-squircle h-12 w-12">
+                        <img src={req.assetImage || req.productImage} alt={req.assetName} />
+                      </div>
+                    </td>
+                    <td>{req.assetName}</td>
+                    <td>{req.hrEmail}</td>
+                    <td>{new Date(req.requestDate).toLocaleString()}</td>
+                    <td className="capitalize font-semibold">
+                      {req.requestStatus} {/* pending / approved / rejected */}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
+      {/* Request Modal */}
       <dialog id="request_modal" className="modal modal-bottom sm:modal-middle">
         <div className="modal-box max-w-md">
-          <h3 className="font-bold text-lg text-primary">
-            Confirm Asset Request
-          </h3>
-
+          <h3 className="font-bold text-lg text-primary">Confirm Request</h3>
           {selectedAsset && (
             <div className="mt-4 space-y-2 text-sm">
               <p>
                 <strong>Asset:</strong> {selectedAsset.productName}
               </p>
               <p>
-                <strong>Company:</strong> {selectedAsset.companyName}
+                <strong>HR:</strong> {selectedAsset.hrEmail}
               </p>
               <p>
-                <strong>HR:</strong> {selectedAsset.hrEmail}
+                <strong>Company:</strong> {selectedAsset.companyName}
               </p>
             </div>
           )}
-
           <div className="modal-action flex-col sm:flex-row gap-2">
             <button
               className="btn btn-outline w-full sm:w-auto"
@@ -202,11 +221,10 @@ const RequestAnAsset = () => {
             >
               Cancel
             </button>
-
             <button
+              className="btn btn-primary w-full sm:w-auto"
               onClick={handleConfirmRequest}
               disabled={isSubmitting}
-              className="btn btn-primary w-full sm:w-auto"
             >
               {isSubmitting ? "Sending..." : "Confirm Request"}
             </button>

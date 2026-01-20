@@ -1,18 +1,27 @@
-import React from 'react';
-import Navbar from '../components/Navbar/Navbar';
-import { Outlet } from 'react-router';
-import Footer from '../components/Footer/Footer';
-import { Helmet } from 'react-helmet';
+import React from "react";
+import { Outlet } from "react-router";
+import Navbar from "../components/Navbar/Navbar";
+import Footer from "../components/Footer/Footer";
+import { Helmet } from "react-helmet";
 
 const RootLayout = () => {
     return (
-        <div className='max-w-11/12 md:max-w-10/12 mx-auto space-y-3'>
+        <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950 transition-colors duration-300">
+            {/* SEO / Title */}
             <Helmet>
-                <title>Home | AssetVerse</title>
+                <title>AssetVerse | Manage Assets Smarter</title>
             </Helmet>
-            <Navbar></Navbar>
-            <Outlet></Outlet>
-            <Footer></Footer>
+
+            {/* Navbar - এক জায়গায় থাকবে, সব পেজে কাজ করবে */}
+            <Navbar />
+
+            {/* Main content - Home, Assets, Profile সব এখানে লোড হবে */}
+            <main className="flex-1 w-full max-w-[1920px] mx-auto overflow-x-hidden">
+                <Outlet />
+            </main>
+
+            {/* Footer */}
+            <Footer />
         </div>
     );
 };

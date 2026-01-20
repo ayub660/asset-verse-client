@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import Loading from "../../../components/Loading/Loading";
 import { useForm } from "react-hook-form";
@@ -13,32 +13,29 @@ const AssetList = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const { register, handleSubmit, setValue, reset } = useForm();
-  const {
-    data: assets = [],
-    isLoading,
 
-    refetch,
-  } = useQuery({
+  const { data: assets = [], isLoading, refetch } = useQuery({
     queryKey: ["assets", searchQuery],
     queryFn: async () => {
-      const res = await axiosSecure.get(`/assets?searchText=${searchQuery}`);
+      const res = await axiosSecure.get("/assets"); // backend GET /assets
       return res.data;
     },
-    enabled: !!searchQuery || searchQuery === "", // initial load allowed
-    keepPreviousData: true,
     staleTime: 1000 * 5,
     refetchOnWindowFocus: false,
   });
 
+  // -----------------------------
+  // Open Edit Modal
   const openEditModal = (asset) => {
     setSelectedAsset(asset);
     setValue("productName", asset.productName);
-    setValue("productImage", asset.productImage);
     setValue("productType", asset.productType);
     setValue("productQuantity", asset.productQuantity);
     modalRef.current.showModal();
   };
 
+  // -----------------------------
+  // Update Asset
   const onSubmitEdit = async (data) => {
     if (!selectedAsset) return;
 
@@ -60,6 +57,8 @@ const AssetList = () => {
         reset();
         refetch();
         Swal.fire("Updated!", "Asset updated successfully.", "success");
+      } else {
+        Swal.fire("Info", "Nothing changed", "info");
       }
     } catch (err) {
       Swal.fire({
@@ -70,6 +69,8 @@ const AssetList = () => {
     }
   };
 
+  // -----------------------------
+  // Delete Asset
   const handleDeleteAsset = async (id) => {
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -81,26 +82,37 @@ const AssetList = () => {
 
     if (!result.isConfirmed) return;
 
-    const res = await axiosSecure.delete(`/assets/${id}`);
-
-    if (res.data.deletedCount) {
-      refetch();
-      Swal.fire("Deleted!", "Asset has been deleted.", "success");
+    try {
+      const res = await axiosSecure.delete(`/assets/${id}`);
+      if (res.data.deletedCount) {
+        refetch();
+        Swal.fire("Deleted!", "Asset has been deleted.", "success");
+      }
+    } catch (err) {
+      Swal.fire("Error", err.message || "Delete failed", "error");
     }
   };
+
+  // -----------------------------
+  // Search
   const handleSearch = () => {
     setSearchQuery(searchText.trim());
   };
 
+  useEffect(() => {
+    if (searchText === "") setSearchQuery("");
+  }, [searchText]);
+
   if (isLoading) return <Loading />;
 
   return (
-    <div>
+    <div className="bg-base-100 rounded-xl p-5">
       <h2 className="text-3xl font-bold mb-6 text-center text-primary">
         All Assets ({assets.length})
       </h2>
 
-      <div className="flex justify-center  mb-6">
+      {/* Search */}
+      <div className="flex justify-center mb-6">
         <div className="flex gap-2 w-full max-w-sm relative">
           <input
             type="text"
@@ -119,8 +131,9 @@ const AssetList = () => {
         </div>
       </div>
 
+      {/* Asset Table */}
       <div className="overflow-x-auto">
-        <table className="table">
+        <table className="table table-zebra w-full">
           <thead>
             <tr>
               <th>#</th>
@@ -131,7 +144,6 @@ const AssetList = () => {
               <th>Actions</th>
             </tr>
           </thead>
-
           <tbody>
             {assets.length === 0 && (
               <tr>
@@ -139,12 +151,10 @@ const AssetList = () => {
                   No assets found
                 </td>
               </tr>
-            )}  
-
+            )}
             {assets.map((asset, index) => (
               <tr key={asset._id}>
                 <td>{index + 1}</td>
-
                 <td>
                   <div className="flex items-center gap-3">
                     <img
@@ -158,13 +168,14 @@ const AssetList = () => {
                   </div>
                 </td>
                 <td>{asset.productType}</td>
-                <td>{asset.productQuantity}</td>
+                <td className={asset.productQuantity === 0 ? "text-error font-bold" : ""}>
+                  {asset.productQuantity}
+                </td>
                 <td>{new Date(asset.createdAt).toLocaleDateString()}</td>
-
                 <td className="space-x-2">
                   <button
                     onClick={() => openEditModal(asset)}
-                    className="btn btn-xs btn-primary"
+                    className="btn btn-xs btn-info"
                   >
                     Edit
                   </button>
@@ -185,20 +196,11 @@ const AssetList = () => {
       <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
         <div className="modal-box">
           <h3 className="text-xl font-bold mb-4 text-center">Edit Asset</h3>
-
-          <form
-            onSubmit={handleSubmit(onSubmitEdit)}
-            className="grid grid-cols-1 gap-4"
-          >
+          <form onSubmit={handleSubmit(onSubmitEdit)} className="grid grid-cols-1 gap-4">
             <input
               {...register("productName", { required: true })}
               className="input"
               placeholder="Product Name"
-            />
-            <input
-              {...register("productImage", { required: true })}
-              className="input"
-              placeholder="Image URL"
             />
             <select
               {...register("productType")}
@@ -213,16 +215,11 @@ const AssetList = () => {
               className="input"
               placeholder="Quantity"
             />
-
             <div className="flex gap-2">
               <button type="submit" className="btn btn-primary flex-1">
                 Update
               </button>
-              <button
-                type="button"
-                onClick={() => modalRef.current.close()}
-                className="btn btn-outline flex-1"
-              >
+              <button type="button" onClick={() => modalRef.current.close()} className="btn btn-outline flex-1">
                 Cancel
               </button>
             </div>

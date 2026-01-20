@@ -19,47 +19,58 @@ const AddAsset = () => {
     formState: { errors },
   } = useForm();
 
-  const { data: userHR = [] } = useQuery({
-    queryKey: ["userHR"],
+  // Get current HR info
+  const { data: currentHR, isLoading } = useQuery({
+    queryKey: ["currentHR", user?.email],
+    enabled: !!user?.email,
     queryFn: async () => {
-      const res = await axiosSecure.get("/users");
+      const res = await axiosSecure.get(`/users/${user.email}`);
       return res.data;
     },
   });
 
+  // Set hidden HR fields
   useEffect(() => {
-    if (user && userHR.length) {
-      const currentHR = userHR.find((hr) => hr.email === user.email);
-
-      if (currentHR) {
-        setValue("hrEmail", currentHR.email);
-        setValue("companyName", currentHR.companyName);
-      }
+    if (currentHR) {
+      setValue("hrEmail", currentHR.email);
+      setValue("companyName", currentHR.companyName);
+      setValue("companyLogo", currentHR.companyLogo || "");
     }
-  }, [user, userHR, setValue]);
+  }, [currentHR, setValue]);
 
   const handleAddAsset = async (data) => {
-    const asset = {
-      productName: data.productName,
-      productImage: data.productImage,
-      productType: data.productType,
-      productQuantity: Number(data.productQuantity),
-      hrEmail: data.hrEmail,
-      companyName: data.companyName,
-      companyLogo: userHR[1].companyLogo,
-      createdAt: new Date(),
-    };
+    if (!data.hrEmail || !data.companyName) {
+      Swal.fire("Error", "HR information not loaded yet", "error");
+      return;
+    }
 
     try {
+      const asset = {
+        productName: data.productName,
+        productImage: data.productImage, // ✅ backend expects this
+        productType: data.productType,
+        productQuantity: Number(data.productQuantity),
+        hrEmail: data.hrEmail,
+        companyName: data.companyName,
+        companyLogo: data.companyLogo,
+        createdAt: new Date(),
+      };
+
       const res = await axiosSecure.post("/assets", asset);
-      if (res.data.insertedId) {
+
+      if (res.data.asset) {
         Swal.fire("Success!", "Asset added successfully", "success");
-        navigate("/dashboard");
+        navigate("/dashboard/asset-list");
       }
     } catch (error) {
-      Swal.fire("Error", "Failed to add asset", error);
+      console.error(error);
+      Swal.fire("Error", "Failed to add asset", "error");
     }
   };
+
+  if (isLoading) {
+    return <p className="text-center mt-10">Loading...</p>;
+  }
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -80,8 +91,9 @@ const AddAsset = () => {
           <div>
             <label className="label">Product Name</label>
             <input
-              {...register("productName")}
-              className="input"
+              type="text"
+              {...register("productName", { required: true })}
+              className="input w-full"
               placeholder="Laptop, Chair, Monitor"
             />
             {errors.productName && (
@@ -93,12 +105,13 @@ const AddAsset = () => {
           <div>
             <label className="label">Product Image URL</label>
             <input
-              {...register("productImage")}
-              className="input"
-              placeholder="https://image-url.com"
+              type="text"
+              {...register("productImage", { required: true })}
+              className="input w-full"
+              placeholder="Image URL"
             />
             {errors.productImage && (
-              <p className="text-error text-sm">Image URL is required</p>
+              <p className="text-error text-sm">Image is required</p>
             )}
           </div>
 
@@ -106,16 +119,13 @@ const AddAsset = () => {
           <div>
             <label className="label">Product Type</label>
             <select
-              {...register("productType")}
-              className="select w-full border-primary outline-none"
+              {...register("productType", { required: true })}
+              className="select w-full border-primary"
             >
               <option value="">Select Type</option>
               <option value="Returnable">Returnable</option>
               <option value="Non-returnable">Non-returnable</option>
             </select>
-            {errors.productType && (
-              <p className="text-error text-sm">Product type is required</p>
-            )}
           </div>
 
           {/* Quantity */}
@@ -125,33 +135,17 @@ const AddAsset = () => {
               type="number"
               {...register("productQuantity", { required: true, min: 1 })}
               className="input"
-              placeholder="Quantity"
-            />
-            {errors.productQuantity && (
-              <p className="text-error text-sm">
-                Product quantity must be at least 1
-              </p>
-            )}
-          </div>
-
-          {/* HR Email */}
-          <div>
-            <label className="label">HR Email</label>
-            <input
-              type="email"
-              {...register("hrEmail")}
-              className="input"
-              readOnly
             />
           </div>
 
-          {/* Company Name */}
-          <div>
-            <label className="label">Company Name</label>
-            <input {...register("companyName")} className="input" readOnly />
-          </div>
+          {/* Hidden HR fields */}
+          <input type="hidden" {...register("hrEmail")} />
+          <input type="hidden" {...register("companyName")} />
+          <input type="hidden" {...register("companyLogo")} />
 
-          <button className="btn btn-primary w-full mt-4">Add Asset</button>
+          <button className="btn btn-primary w-full mt-4">
+            Add Asset
+          </button>
         </form>
       </div>
     </div>

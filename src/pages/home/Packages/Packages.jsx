@@ -2,6 +2,8 @@ import React from "react";
 import useAxios from "../../../hooks/useAxios";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "../../../components/Loading/Loading";
+import { motion } from "framer-motion";
+import { FaCheckCircle } from "react-icons/fa";
 
 const Packages = () => {
   const axios = useAxios();
@@ -10,88 +12,86 @@ const Packages = () => {
     queryKey: ["packages"],
     queryFn: async () => {
       const res = await axios.get("/packages");
-      return res.data;
+      return Array.isArray(res.data) ? res.data : [];
     },
   });
 
-  if (isLoading) {
-    return <Loading />;
-  }
+  if (isLoading) return <Loading />;
 
   return (
-    <section className="py-14 sm:py-16 lg:py-20 px-4 sm:px-8 lg:px-12  rounded-lg shadow-sm shadow-neutral bg-base-100">
-      <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary">
-            Plans Built for Every Office
+    <section className="py-24 bg-gray-50 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6">
+
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-16 space-y-4"
+        >
+          <h2 className="text-4xl md:text-5xl font-black text-gray-900 leading-tight">
+            Flexible <span className="text-[#6366f1]">Pricing</span> for Every Business
           </h2>
-          <p className="mt-4 text-sm sm:text-base text-neutral">
-            Choose a plan that fits your team size and scale your asset
-            management as your organization grows.
+          <div className="w-24 h-1.5 bg-[#6366f1] mx-auto rounded-full"></div>
+          <p className="mt-4 text-gray-600 text-lg max-w-2xl mx-auto font-medium">
+            Choose the perfect plan to manage your assets efficiently and scale your team without limits.
           </p>
-        </div>
+        </motion.div>
 
         {/* Pricing Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {packages.map((plan) => (
-            <div
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+          {packages.slice(0, 3).map((plan, index) => (
+            <motion.div
               key={plan._id}
-              className="card bg-base-100 shadow-xs shadow-neutral h-full transition-all duration-300 hover:shadow-md"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+              className={`relative flex flex-col p-8 bg-white rounded-[2.5rem] shadow-xl transition-all duration-300 hover:shadow-2xl border-2 ${index === 1 ? "border-[#6366f1] md:scale-110 z-10" : "border-transparent"
+                }`}
             >
-              <div className="card-body flex flex-col">
-                {/* Header */}
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-xl font-bold">{plan.name}</h3>
-                    <p
-                      className={`text-sm font-medium mt-1 ${
-                        plan.employeeLimit <= 5
-                          ? "text-error"
-                          : plan.employeeLimit <= 10
-                          ? "text-warning"
-                          : "text-success"
-                      }`}
-                    >
-                      Employee Limit: {plan.employeeLimit}
-                    </p>
-                  </div>
-                  <span className="text-2xl font-bold text-primary">
-                    ${plan.price}
-                  </span>
-                </div>
+              {/* Most Popular Tag */}
+              {index === 1 && (
+                <span className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#6366f1] text-white px-6 py-1.5 rounded-full text-sm font-black tracking-widest uppercase">
+                  Best Value
+                </span>
+              )}
 
-                {/* Features */}
-                <ul className="mt-6 flex-1 flex flex-col gap-2 text-sm">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="size-4 me-2 text-success"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* CTA */}
-                <div className="mt-6">
-                  <button className="btn btn-primary btn-block">
-                    Subscribe
-                  </button>
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-5xl font-black text-[#6366f1]">${plan.price}</span>
+                  <span className="text-gray-500 font-bold">/lifetime</span>
                 </div>
               </div>
-            </div>
+
+              {/* Limit Display */}
+              <div className="bg-indigo-50 rounded-2xl p-4 mb-8">
+                <p className="text-[#6366f1] font-bold text-center">
+                  Up to {plan.employeeLimit} Employees
+                </p>
+              </div>
+
+              {/* Features List */}
+              <ul className="flex-1 space-y-4 mb-10">
+                {(plan.features || ["Admin Dashboard", "Asset Tracking", "Real-time Reports"]).map((feature, idx) => (
+                  <li key={idx} className="flex items-center gap-3 text-gray-600 font-medium text-[15px]">
+                    <FaCheckCircle className="text-[#6366f1] flex-shrink-0 text-lg" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+
+              {/* CTA Button */}
+              <button
+                className={`btn h-14 rounded-2xl text-lg font-black transition-all border-none ${index === 1
+                    ? "bg-[#6366f1] text-white shadow-lg shadow-indigo-200 hover:bg-[#4f46e5]"
+                    : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                  }`}
+              >
+                Purchase Now
+              </button>
+            </motion.div>
           ))}
         </div>
       </div>
