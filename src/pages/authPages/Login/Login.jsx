@@ -20,8 +20,6 @@ const Login = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
-
-  // ✅ JWT & LocalStorage Helper (Auto create user if not exists)
   const handleAuthSuccess = async (user) => {
     try {
       const res = await axios.post("/jwt", {
@@ -30,14 +28,21 @@ const Login = () => {
         photo: user.photoURL,
       });
 
-      localStorage.setItem("access-token", res.data.token);
-      navigate(location?.state || "/");
+      if (res.data.token) {
+        localStorage.setItem("access-token", res.data.token);
+
+
+        setTimeout(() => {
+
+          const destination = location?.state || "/dashboard";
+          navigate(destination, { replace: true });
+        }, 500);
+      }
     } catch (err) {
       console.error("JWT Error:", err);
-      toast.error("Authentication failed");
+      toast.error("Authentication failed. User might not be in DB yet.");
     }
   };
-
 
   // ✅ Email / Password Login
   const handleLogin = async (data) => {
